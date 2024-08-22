@@ -1,0 +1,233 @@
+[gd_scene load_steps=8 format=3 uid="uid://bjxl4sqdeadp8"]
+
+[ext_resource type="Script" path="res://Scripts/UI.cs" id="1_hy4dg"]
+[ext_resource type="Texture2D" uid="uid://dmft4qip53bti" path="res://tex/square32.png" id="2_tgaug"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lt2t3"]
+bg_color = Color(1, 1, 1, 1)
+skew = Vector2(-0.5, 0)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0, 1, 1, 1)
+corner_detail = 20
+expand_margin_left = 20.0
+expand_margin_right = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xv0oa"]
+bg_color = Color(0.864675, 0.864675, 0.864675, 1)
+skew = Vector2(-0.5, 0)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0, 1, 1, 1)
+corner_detail = 20
+expand_margin_left = 20.0
+expand_margin_right = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0uq1v"]
+bg_color = Color(0.629675, 0.629675, 0.629675, 1)
+skew = Vector2(-0.5, 0)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0, 1, 1, 1)
+corner_detail = 20
+expand_margin_left = 20.0
+expand_margin_right = 20.0
+
+[sub_resource type="Shader" id="Shader_wyq5y"]
+code = "shader_type canvas_item;
+
+uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, repeat_disable, filter_nearest;
+
+// --- Uniforms --- /
+uniform vec4 color1 : source_color;
+uniform float threshold;
+uniform float opacity;
+uniform float intensity = 1.;
+uniform float influence: hint_range(0.0, 1.0, 0.1) = 0.5;
+uniform float speed = 100;
+
+const float TWO_PI = 6.28318530718;
+
+// --- Functions --- //
+vec4 hsv2rgb(vec3 _c) {
+    vec4 _K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 _p = abs(fract(_c.xxx + _K.xyz) * 6.0 - _K.www);
+    return vec4( _c.z * mix(_K.xxx, clamp(_p - _K.xxx, 0.0, 1.0), _c.y), 1. );
+}
+
+void fragment() {
+	vec2 pos = vec2(0.5) - SCREEN_UV;
+	float offset = speed * TIME;
+	COLOR.rgb = textureLod( SCREEN_TEXTURE, SCREEN_UV, 0.0 ).rgb;
+	float distance = length(COLOR - color1);
+	vec4 col = influence * hsv2rgb(vec3(((atan(pos.y, pos.x) + radians(offset)) / TWO_PI) + 0.5, length(pos) * 2.0, 1.0));
+	if( distance < threshold )
+	{
+		COLOR = col * intensity;
+		COLOR.a = opacity;
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3ei7c"]
+shader = SubResource("Shader_wyq5y")
+shader_parameter/color1 = Color(0, 1, 1, 1)
+shader_parameter/threshold = 0.475
+shader_parameter/opacity = 1.0
+shader_parameter/intensity = 0.565
+shader_parameter/influence = 1.0
+shader_parameter/speed = 250.0
+
+[node name="ui" type="Control" node_paths=PackedStringArray("_ScreenDarken")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hy4dg")
+_MainMenuScenePath = "res://main_menu.tscn"
+_ScreenDarken = NodePath("ScreenDarken")
+
+[node name="Score" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 40.0
+grow_horizontal = 0
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Score"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "SCORE:"
+
+[node name="score" type="Label" parent="Score"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "0"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+texture_filter = 1
+layout_mode = 1
+offset_right = 40.0
+offset_bottom = 40.0
+scale = Vector2(2, 2)
+
+[node name="life" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_tgaug")
+stretch_mode = 2
+
+[node name="life2" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_tgaug")
+stretch_mode = 2
+
+[node name="life3" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_tgaug")
+stretch_mode = 2
+
+[node name="life4" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_tgaug")
+stretch_mode = 2
+
+[node name="life5" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_tgaug")
+stretch_mode = 2
+
+[node name="life6" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_tgaug")
+stretch_mode = 2
+
+[node name="life7" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_tgaug")
+stretch_mode = 2
+
+[node name="life8" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_tgaug")
+stretch_mode = 2
+
+[node name="life9" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_tgaug")
+stretch_mode = 2
+
+[node name="EndScreen" type="CenterContainer" parent="."]
+visible = false
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="EndScreen"]
+layout_mode = 2
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="gameover" type="Label" parent="EndScreen/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="EndScreen/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="EndScreen/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "SCORE: "
+
+[node name="Score" type="Label" parent="EndScreen/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "0"
+
+[node name="main menu" type="Button" parent="EndScreen/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.244776, 0.244776, 0.244776, 1)
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 71
+theme_override_styles/normal = SubResource("StyleBoxFlat_lt2t3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_xv0oa")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0uq1v")
+text = "MAIN MENU"
+icon_alignment = 1
+
+[node name="ColorRect" type="ColorRect" parent="EndScreen"]
+material = SubResource("ShaderMaterial_3ei7c")
+custom_minimum_size = Vector2(42069, 20000)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ScreenDarken" type="ColorRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[connection signal="pressed" from="EndScreen/VBoxContainer/main menu" to="." method="MainMenu"]

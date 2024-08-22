@@ -1,0 +1,10 @@
+[gd_resource type="GradientTexture2D" load_steps=2 format=3 uid="uid://bnhlmsvrun0ti"]
+
+[sub_resource type="Gradient" id="Gradient_biku3"]
+offsets = PackedFloat32Array(0, 0.162338, 0.331169, 0.506494, 0.681818, 0.857143, 1)
+colors = PackedColorArray(1, 1, 0, 1, 1, 0.494118, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1)
+
+[resource]
+gradient = SubResource("Gradient_biku3")
+width = 32
+height = 32

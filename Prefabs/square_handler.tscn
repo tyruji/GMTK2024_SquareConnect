@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://cjvem24t72c0c"]
+
+[ext_resource type="Script" path="res://Scripts/SquareHandler.cs" id="1_uovtp"]
+[ext_resource type="PackedScene" uid="uid://crcnjsbnh0mtv" path="res://Prefabs/square.tscn" id="2_1dgil"]
+[ext_resource type="PackedScene" uid="uid://mvaf3famfye5" path="res://Prefabs/rainbow_square.tscn" id="3_lr4kl"]
+
+[node name="SquareHandler" type="Node2D" node_paths=PackedStringArray("Timer")]
+script = ExtResource("1_uovtp")
+Colours = [Color(1, 0, 0, 1), Color(0, 1, 0, 1), Color(0, 0, 1, 1), Color(0, 1, 1, 1), Color(0.501961, 0, 1, 1), Color(1, 1, 0, 1), Color(1, 0.501961, 0, 1)]
+_SquarePrefab = ExtResource("2_1dgil")
+_RainbowSquarePrefab = ExtResource("3_lr4kl")
+Timer = NodePath("Timer")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true

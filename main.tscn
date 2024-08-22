@@ -1,0 +1,189 @@
+[gd_scene load_steps=27 format=3 uid="uid://domlnnihc7dbl"]
+
+[ext_resource type="Script" path="res://Scripts/Player.cs" id="1_ix0fw"]
+[ext_resource type="Script" path="res://Scripts/StartingSquare.cs" id="2_id0j2"]
+[ext_resource type="Texture2D" uid="uid://dmft4qip53bti" path="res://tex/square32.png" id="3_w2f18"]
+[ext_resource type="PackedScene" uid="uid://cjvem24t72c0c" path="res://Prefabs/square_handler.tscn" id="4_j7lwp"]
+[ext_resource type="Script" path="res://Scripts/CameraHandler.cs" id="4_o5dy0"]
+[ext_resource type="Script" path="res://Scripts/ScreenBounds.cs" id="6_080y7"]
+[ext_resource type="Script" path="res://Scripts/Wave.cs" id="6_wq5vc"]
+[ext_resource type="Script" path="res://Scripts/SoundManager.cs" id="7_4lvt5"]
+[ext_resource type="AudioStream" uid="uid://cj3n2bb2rrdmx" path="res://Music/bg.mp3" id="7_chq01"]
+[ext_resource type="AudioStream" uid="uid://pbbg14bfb5k7" path="res://sfx/capture.wav" id="8_d6pqh"]
+[ext_resource type="AudioStream" uid="uid://cob5ld4ldfj4v" path="res://sfx/destroy.wav" id="10_6c4f8"]
+[ext_resource type="AudioStream" uid="uid://cpain84kfx6pe" path="res://sfx/rainbow_capture.wav" id="10_d41ri"]
+[ext_resource type="AudioStream" uid="uid://3ljp0baeiii0" path="res://sfx/bounce.wav" id="11_rwhm4"]
+[ext_resource type="PackedScene" uid="uid://bjxl4sqdeadp8" path="res://ui.tscn" id="13_a7ccf"]
+[ext_resource type="Script" path="res://Scripts/SquareDestroyer.cs" id="15_xlcoe"]
+
+[sub_resource type="Shader" id="Shader_dicv3"]
+code = "shader_type canvas_item;
+
+// --- Uniforms --- /
+uniform float influence: hint_range(0.0, 1.0, 0.1) = 0.5;
+uniform float speed = 100;
+
+const float TWO_PI = 6.28318530718;
+
+// --- Functions --- //
+vec3 hsv2rgb(vec3 _c) {
+    vec4 _K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 _p = abs(fract(_c.xxx + _K.xyz) * 6.0 - _K.www);
+    return _c.z * mix(_K.xxx, clamp(_p - _K.xxx, 0.0, 1.0), _c.y);
+}
+
+void fragment() {
+	vec2 pos = vec2(0.5) - UV;
+	float offset = speed * TIME;
+	COLOR.rgb *= influence * hsv2rgb(vec3(((atan(pos.y, pos.x) + radians(offset)) / TWO_PI) + 0.5, length(pos) * 2.0, 1.0));
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fnfq3"]
+shader = SubResource("Shader_dicv3")
+shader_parameter/influence = 1.0
+shader_parameter/speed = 150.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_a0k7g"]
+size = Vector2(32, 32)
+
+[sub_resource type="Resource" id="Resource_or0n7"]
+script = ExtResource("6_wq5vc")
+Duration = 10.0
+Frequency = 0.5
+ColorCount = 2
+MinSpeed = 20.0
+MaxSpeed = 30.0
+
+[sub_resource type="Resource" id="Resource_3ub1j"]
+script = ExtResource("6_wq5vc")
+Duration = 10.0
+Frequency = 0.6
+ColorCount = 3
+MinSpeed = 30.0
+MaxSpeed = 35.0
+
+[sub_resource type="Resource" id="Resource_ef5my"]
+script = ExtResource("6_wq5vc")
+Duration = 10.0
+Frequency = 0.5
+ColorCount = 4
+MinSpeed = 45.0
+MaxSpeed = 50.0
+
+[sub_resource type="Resource" id="Resource_7g4no"]
+script = ExtResource("6_wq5vc")
+Duration = 3.0
+Frequency = 0.25
+ColorCount = 2
+MinSpeed = 50.0
+MaxSpeed = 60.0
+
+[sub_resource type="Resource" id="Resource_5uguo"]
+script = ExtResource("6_wq5vc")
+Duration = 10.0
+Frequency = 0.6
+ColorCount = 5
+MinSpeed = 50.0
+MaxSpeed = 80.0
+
+[sub_resource type="Resource" id="Resource_je6ol"]
+script = ExtResource("6_wq5vc")
+Duration = 20.0
+Frequency = 0.5
+ColorCount = 6
+MinSpeed = 70.0
+MaxSpeed = 80.0
+
+[sub_resource type="Resource" id="Resource_rygeg"]
+script = ExtResource("6_wq5vc")
+Duration = 30.0
+Frequency = 0.5
+ColorCount = 7
+MinSpeed = 80.0
+MaxSpeed = 90.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_exwwu"]
+size = Vector2(5589, 607.751)
+
+[node name="main" type="Node2D"]
+
+[node name="Player" type="Node2D" parent="."]
+position = Vector2(69, -21)
+script = ExtResource("1_ix0fw")
+
+[node name="StartingSquare" type="Area2D" parent="Player"]
+script = ExtResource("2_id0j2")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player/StartingSquare"]
+texture_filter = 1
+material = SubResource("ShaderMaterial_fnfq3")
+texture = ExtResource("3_w2f18")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/StartingSquare"]
+shape = SubResource("RectangleShape2D_a0k7g")
+
+[node name="Camera" type="Camera2D" parent="."]
+zoom = Vector2(4, 4)
+script = ExtResource("4_o5dy0")
+
+[node name="SquareHandler" parent="." instance=ExtResource("4_j7lwp")]
+Waves = [SubResource("Resource_or0n7"), SubResource("Resource_3ub1j"), SubResource("Resource_ef5my"), SubResource("Resource_7g4no"), SubResource("Resource_5uguo"), SubResource("Resource_je6ol"), SubResource("Resource_rygeg")]
+
+[node name="ScreenBounds" type="Node2D" parent="."]
+script = ExtResource("6_080y7")
+
+[node name="SoundManager" type="Node2D" parent="."]
+script = ExtResource("7_4lvt5")
+
+[node name="music" type="AudioStreamPlayer" parent="SoundManager"]
+stream = ExtResource("7_chq01")
+autoplay = true
+
+[node name="capture" type="AudioStreamPlayer" parent="SoundManager"]
+stream = ExtResource("8_d6pqh")
+volume_db = 2.0
+max_polyphony = 8
+
+[node name="rainbow_capture" type="AudioStreamPlayer" parent="SoundManager"]
+stream = ExtResource("10_d41ri")
+volume_db = 2.0
+max_polyphony = 8
+
+[node name="destroy" type="AudioStreamPlayer" parent="SoundManager"]
+stream = ExtResource("10_6c4f8")
+volume_db = 2.0
+max_polyphony = 4
+
+[node name="bounce" type="AudioStreamPlayer" parent="SoundManager"]
+stream = ExtResource("11_rwhm4")
+volume_db = -5.0
+max_polyphony = 8
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ui" parent="CanvasLayer" instance=ExtResource("13_a7ccf")]
+
+[node name="Area2D" type="Area2D" parent="."]
+position = Vector2(1333, 1280)
+script = ExtResource("15_xlcoe")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-1400.5, 586.25)
+shape = SubResource("RectangleShape2D_exwwu")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(1609, -1235)
+rotation = 1.57079
+shape = SubResource("RectangleShape2D_exwwu")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-4342, -1317)
+rotation = 1.57079
+shape = SubResource("RectangleShape2D_exwwu")
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-1400, -3796)
+rotation = 3.14159
+shape = SubResource("RectangleShape2D_exwwu")
+
+[connection signal="area_entered" from="Area2D" to="Area2D" method="OnAreaEntered"]

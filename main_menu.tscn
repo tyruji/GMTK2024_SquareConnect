@@ -1,0 +1,254 @@
+[gd_scene load_steps=19 format=3 uid="uid://cqfn07s1vgadi"]
+
+[ext_resource type="Script" path="res://Scripts/MainMenu.cs" id="1_eeesp"]
+[ext_resource type="Shader" path="res://Shaders/rainbow_shader.gdshader" id="1_ef4wy"]
+[ext_resource type="Texture2D" uid="uid://dmft4qip53bti" path="res://tex/square32.png" id="1_vgkm8"]
+[ext_resource type="PackedScene" uid="uid://domlnnihc7dbl" path="res://main.tscn" id="2_yvr60"]
+[ext_resource type="PackedScene" uid="uid://c1hgj2hyj1g1b" path="res://tutorial.tscn" id="3_46xur"]
+[ext_resource type="Script" path="res://Scripts/TestSpawner.cs" id="3_m66hr"]
+[ext_resource type="Shader" path="res://Shaders/screen_rainbow.gdshader" id="4_beupa"]
+[ext_resource type="PackedScene" uid="uid://crcnjsbnh0mtv" path="res://Prefabs/square.tscn" id="4_ubrkk"]
+[ext_resource type="Script" path="res://Scripts/SquareDestroyer.cs" id="5_vmshk"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_syitm"]
+bg_color = Color(1, 1, 1, 1)
+skew = Vector2(-0.5, 0)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0, 1, 1, 1)
+corner_detail = 20
+expand_margin_left = 20.0
+expand_margin_right = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4833c"]
+bg_color = Color(0.864675, 0.864675, 0.864675, 1)
+skew = Vector2(-0.5, 0)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0, 1, 1, 1)
+corner_detail = 20
+expand_margin_left = 20.0
+expand_margin_right = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dq0lo"]
+bg_color = Color(0.629675, 0.629675, 0.629675, 1)
+skew = Vector2(-0.5, 0)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0, 1, 1, 1)
+corner_detail = 20
+expand_margin_left = 20.0
+expand_margin_right = 20.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_irykt"]
+shader = ExtResource("4_beupa")
+shader_parameter/color1 = Color(0, 1, 1, 1)
+shader_parameter/threshold = 0.475
+shader_parameter/opacity = 1.0
+shader_parameter/intensity = 0.565
+shader_parameter/influence = 1.0
+shader_parameter/speed = 250.0
+
+[sub_resource type="Animation" id="Animation_p27f8"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(10, 10)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_nuw6r"]
+resource_name = "spin"
+loop_mode = 1
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(10, 10), Vector2(-10, 10), Vector2(10, 10)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:modulate")
+tracks/1/interp = 0
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.75),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(0.525101, 0.525101, 0.525101, 1), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_7texk"]
+_data = {
+"RESET": SubResource("Animation_p27f8"),
+"spin": SubResource("Animation_nuw6r")
+}
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_f7in4"]
+shader = ExtResource("1_ef4wy")
+shader_parameter/influence = 1.0
+shader_parameter/speed = 100.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3dary"]
+size = Vector2(1497, 215)
+
+[node name="MainMenu" type="Control" node_paths=PackedStringArray("_ScreenDarken")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_eeesp")
+_GameScene = ExtResource("2_yvr60")
+_TutorialScene = ExtResource("3_46xur")
+_ScreenDarken = NodePath("ScreenDarken")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -132.0
+offset_right = 132.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 70
+alignment = 1
+
+[node name="STARTGAME" type="Button" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.244776, 0.244776, 0.244776, 1)
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 70
+theme_override_styles/normal = SubResource("StyleBoxFlat_syitm")
+theme_override_styles/hover = SubResource("StyleBoxFlat_4833c")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_dq0lo")
+text = "START GAME"
+icon_alignment = 1
+
+[node name="TUTORIAL" type="Button" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.244776, 0.244776, 0.244776, 1)
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 71
+theme_override_styles/normal = SubResource("StyleBoxFlat_syitm")
+theme_override_styles/hover = SubResource("StyleBoxFlat_4833c")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_dq0lo")
+text = "TUTORIAL
+"
+icon_alignment = 1
+
+[node name="Container" type="Control" parent="HBoxContainer"]
+custom_minimum_size = Vector2(775.94, 0)
+layout_mode = 2
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_irykt")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="spawner" type="Node2D" parent="." node_paths=PackedStringArray("_Timer")]
+position = Vector2(1294, -42)
+script = ExtResource("3_m66hr")
+Colours = [Color(1, 0, 0, 1), Color(0, 1, 0, 1), Color(0, 0, 1, 1), Color(0, 1, 1, 1), Color(0.501961, 0, 1, 1), Color(1, 1, 0, 1), Color(1, 0.501961, 0, 1)]
+_SquarePrefab = ExtResource("4_ubrkk")
+_Timer = NodePath("Timer")
+
+[node name="Timer" type="Timer" parent="spawner"]
+wait_time = 0.1
+autostart = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+root_node = NodePath("../RainbowSquare")
+libraries = {
+"": SubResource("AnimationLibrary_7texk")
+}
+autoplay = "spin"
+
+[node name="RainbowSquare" type="TextureRect" parent="."]
+texture_filter = 1
+material = SubResource("ShaderMaterial_f7in4")
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 426.0
+offset_top = -16.0
+offset_right = 458.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(10, 10)
+pivot_offset = Vector2(16, 16)
+size_flags_horizontal = 4
+texture = ExtResource("1_vgkm8")
+stretch_mode = 2
+
+[node name="Area2D" type="Area2D" parent="."]
+position = Vector2(1333, 1280)
+script = ExtResource("5_vmshk")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-111, 12)
+shape = SubResource("RectangleShape2D_3dary")
+
+[node name="ScreenDarken" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[connection signal="pressed" from="HBoxContainer/VBoxContainer/STARTGAME" to="." method="StartGame"]
+[connection signal="pressed" from="HBoxContainer/VBoxContainer/TUTORIAL" to="." method="StartTutorial"]
+[connection signal="area_entered" from="Area2D" to="Area2D" method="OnAreaEntered"]

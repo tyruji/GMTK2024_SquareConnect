@@ -1,0 +1,374 @@
+[gd_scene load_steps=24 format=3 uid="uid://c1hgj2hyj1g1b"]
+
+[ext_resource type="Script" path="res://Scripts/Player.cs" id="1_p2xwb"]
+[ext_resource type="Script" path="res://Scripts/StartingSquare.cs" id="2_qnhq1"]
+[ext_resource type="Texture2D" uid="uid://dmft4qip53bti" path="res://tex/square32.png" id="3_xd4l7"]
+[ext_resource type="Script" path="res://Scripts/CameraHandler.cs" id="4_wpya3"]
+[ext_resource type="Script" path="res://Scripts/ScreenBounds.cs" id="5_xeacy"]
+[ext_resource type="Script" path="res://Scripts/SquareHandler.cs" id="6_jsxli"]
+[ext_resource type="PackedScene" uid="uid://crcnjsbnh0mtv" path="res://Prefabs/square.tscn" id="7_5bycw"]
+[ext_resource type="Script" path="res://Scripts/SoundManager.cs" id="7_twvta"]
+[ext_resource type="PackedScene" uid="uid://mvaf3famfye5" path="res://Prefabs/rainbow_square.tscn" id="8_qdk0k"]
+[ext_resource type="AudioStream" uid="uid://pbbg14bfb5k7" path="res://sfx/capture.wav" id="9_jfdpu"]
+[ext_resource type="AudioStream" uid="uid://cpain84kfx6pe" path="res://sfx/rainbow_capture.wav" id="10_x05wk"]
+[ext_resource type="AudioStream" uid="uid://cob5ld4ldfj4v" path="res://sfx/destroy.wav" id="11_6uaac"]
+[ext_resource type="Script" path="res://Scripts/UI.cs" id="12_abtrm"]
+[ext_resource type="AudioStream" uid="uid://3ljp0baeiii0" path="res://sfx/bounce.wav" id="12_cneds"]
+[ext_resource type="Script" path="res://Scripts/TutorialHandler.cs" id="13_08j5l"]
+
+[sub_resource type="Shader" id="Shader_exk35"]
+code = "shader_type canvas_item;
+
+// --- Uniforms --- /
+uniform float influence: hint_range(0.0, 1.0, 0.1) = 0.5;
+uniform float speed = 100;
+
+const float TWO_PI = 6.28318530718;
+
+// --- Functions --- //
+vec3 hsv2rgb(vec3 _c) {
+    vec4 _K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 _p = abs(fract(_c.xxx + _K.xyz) * 6.0 - _K.www);
+    return _c.z * mix(_K.xxx, clamp(_p - _K.xxx, 0.0, 1.0), _c.y);
+}
+
+void fragment() {
+	vec2 pos = vec2(0.5) - UV;
+	float offset = speed * TIME;
+	COLOR.rgb *= influence * hsv2rgb(vec3(((atan(pos.y, pos.x) + radians(offset)) / TWO_PI) + 0.5, length(pos) * 2.0, 1.0));
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_41q61"]
+shader = SubResource("Shader_exk35")
+shader_parameter/influence = 1.0
+shader_parameter/speed = 150.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4o2wa"]
+size = Vector2(32, 32)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lt2t3"]
+bg_color = Color(1, 1, 1, 1)
+skew = Vector2(-0.5, 0)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0, 1, 1, 1)
+corner_detail = 20
+expand_margin_left = 20.0
+expand_margin_right = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xv0oa"]
+bg_color = Color(0.864675, 0.864675, 0.864675, 1)
+skew = Vector2(-0.5, 0)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0, 1, 1, 1)
+corner_detail = 20
+expand_margin_left = 20.0
+expand_margin_right = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0uq1v"]
+bg_color = Color(0.629675, 0.629675, 0.629675, 1)
+skew = Vector2(-0.5, 0)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0, 1, 1, 1)
+corner_detail = 20
+expand_margin_left = 20.0
+expand_margin_right = 20.0
+
+[sub_resource type="Shader" id="Shader_wyq5y"]
+code = "shader_type canvas_item;
+
+uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, repeat_disable, filter_nearest;
+
+// --- Uniforms --- /
+uniform vec4 color1 : source_color;
+uniform float threshold;
+uniform float opacity;
+uniform float intensity = 1.;
+uniform float influence: hint_range(0.0, 1.0, 0.1) = 0.5;
+uniform float speed = 100;
+
+const float TWO_PI = 6.28318530718;
+
+// --- Functions --- //
+vec4 hsv2rgb(vec3 _c) {
+    vec4 _K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 _p = abs(fract(_c.xxx + _K.xyz) * 6.0 - _K.www);
+    return vec4( _c.z * mix(_K.xxx, clamp(_p - _K.xxx, 0.0, 1.0), _c.y), 1. );
+}
+
+void fragment() {
+	vec2 pos = vec2(0.5) - SCREEN_UV;
+	float offset = speed * TIME;
+	COLOR.rgb = textureLod( SCREEN_TEXTURE, SCREEN_UV, 0.0 ).rgb;
+	float distance = length(COLOR - color1);
+	vec4 col = influence * hsv2rgb(vec3(((atan(pos.y, pos.x) + radians(offset)) / TWO_PI) + 0.5, length(pos) * 2.0, 1.0));
+	if( distance < threshold )
+	{
+		COLOR = col * intensity;
+		COLOR.a = opacity;
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3ei7c"]
+shader = SubResource("Shader_wyq5y")
+shader_parameter/color1 = Color(0, 1, 1, 1)
+shader_parameter/threshold = 0.475
+shader_parameter/opacity = 1.0
+shader_parameter/intensity = 0.565
+shader_parameter/influence = 1.0
+shader_parameter/speed = 250.0
+
+[node name="Tutorial" type="Node2D"]
+
+[node name="Player" type="Node2D" parent="."]
+position = Vector2(100, 36)
+script = ExtResource("1_p2xwb")
+
+[node name="StartingSquare" type="Area2D" parent="Player"]
+script = ExtResource("2_qnhq1")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player/StartingSquare"]
+texture_filter = 1
+material = SubResource("ShaderMaterial_41q61")
+texture = ExtResource("3_xd4l7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/StartingSquare"]
+shape = SubResource("RectangleShape2D_4o2wa")
+
+[node name="Camera" type="Camera2D" parent="."]
+zoom = Vector2(4, 4)
+script = ExtResource("4_wpya3")
+
+[node name="ScreenBounds" type="Node2D" parent="."]
+script = ExtResource("5_xeacy")
+
+[node name="SquareHandler" type="Node2D" parent="." node_paths=PackedStringArray("Timer", "_ScreenBounds")]
+script = ExtResource("6_jsxli")
+Colours = [Color(1, 0, 0, 1), Color(0, 1, 0, 1), Color(0, 0, 1, 1), Color(0, 1, 1, 1), Color(0.501961, 0, 1, 1), Color(1, 1, 0, 1), Color(1, 0.501961, 0, 1)]
+_SquarePrefab = ExtResource("7_5bycw")
+_RainbowSquarePrefab = ExtResource("8_qdk0k")
+Timer = NodePath("Timer")
+_ScreenBounds = NodePath("../ScreenBounds")
+
+[node name="Timer" type="Timer" parent="SquareHandler"]
+wait_time = 0.5
+autostart = true
+
+[node name="SoundManager" type="Node2D" parent="."]
+script = ExtResource("7_twvta")
+
+[node name="music" type="AudioStreamPlayer" parent="SoundManager"]
+autoplay = true
+
+[node name="capture" type="AudioStreamPlayer" parent="SoundManager"]
+stream = ExtResource("9_jfdpu")
+volume_db = 2.0
+max_polyphony = 8
+
+[node name="rainbow_capture" type="AudioStreamPlayer" parent="SoundManager"]
+stream = ExtResource("10_x05wk")
+volume_db = 2.0
+max_polyphony = 8
+
+[node name="destroy" type="AudioStreamPlayer" parent="SoundManager"]
+stream = ExtResource("11_6uaac")
+volume_db = 2.0
+max_polyphony = 4
+
+[node name="bounce" type="AudioStreamPlayer" parent="SoundManager"]
+stream = ExtResource("12_cneds")
+volume_db = -5.0
+max_polyphony = 8
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ui" type="Control" parent="CanvasLayer" node_paths=PackedStringArray("_ScreenDarken")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("12_abtrm")
+_MainMenuScenePath = "res://main_menu.tscn"
+_ScreenDarken = NodePath("ScreenDarken")
+
+[node name="Score" type="HBoxContainer" parent="CanvasLayer/ui"]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 40.0
+grow_horizontal = 0
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="CanvasLayer/ui/Score"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "SCORE:"
+
+[node name="score" type="Label" parent="CanvasLayer/ui/Score"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "0"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/ui"]
+visible = false
+texture_filter = 1
+layout_mode = 1
+offset_right = 40.0
+offset_bottom = 40.0
+scale = Vector2(2, 2)
+
+[node name="life" type="TextureRect" parent="CanvasLayer/ui/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_xd4l7")
+stretch_mode = 2
+
+[node name="life2" type="TextureRect" parent="CanvasLayer/ui/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_xd4l7")
+stretch_mode = 2
+
+[node name="life3" type="TextureRect" parent="CanvasLayer/ui/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_xd4l7")
+stretch_mode = 2
+
+[node name="life4" type="TextureRect" parent="CanvasLayer/ui/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_xd4l7")
+stretch_mode = 2
+
+[node name="life5" type="TextureRect" parent="CanvasLayer/ui/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_xd4l7")
+stretch_mode = 2
+
+[node name="life6" type="TextureRect" parent="CanvasLayer/ui/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_xd4l7")
+stretch_mode = 2
+
+[node name="life7" type="TextureRect" parent="CanvasLayer/ui/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_xd4l7")
+stretch_mode = 2
+
+[node name="life8" type="TextureRect" parent="CanvasLayer/ui/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_xd4l7")
+stretch_mode = 2
+
+[node name="life9" type="TextureRect" parent="CanvasLayer/ui/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_xd4l7")
+stretch_mode = 2
+
+[node name="EndScreen" type="CenterContainer" parent="CanvasLayer/ui"]
+visible = false
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/ui/EndScreen"]
+layout_mode = 2
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="gameover" type="Label" parent="CanvasLayer/ui/EndScreen/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/ui/EndScreen/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="CanvasLayer/ui/EndScreen/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "SCORE: "
+
+[node name="Score" type="Label" parent="CanvasLayer/ui/EndScreen/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "0"
+
+[node name="main menu" type="Button" parent="CanvasLayer/ui/EndScreen/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.244776, 0.244776, 0.244776, 1)
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 71
+theme_override_styles/normal = SubResource("StyleBoxFlat_lt2t3")
+theme_override_styles/hover = SubResource("StyleBoxFlat_xv0oa")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0uq1v")
+text = "MAIN MENU"
+icon_alignment = 1
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer/ui/EndScreen"]
+material = SubResource("ShaderMaterial_3ei7c")
+custom_minimum_size = Vector2(42069, 20000)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ScreenDarken" type="ColorRect" parent="CanvasLayer/ui"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="text" type="VBoxContainer" parent="CanvasLayer/ui"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -236.0
+offset_top = -216.68
+offset_right = 236.0
+offset_bottom = -60.68
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 15
+
+[node name="Label" type="Label" parent="CanvasLayer/ui/text"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "dsadasdasdasd"
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="CanvasLayer/ui/text"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "NEXT"
+icon_alignment = 1
+
+[node name="TutorialHandler" type="Node2D" parent="."]
+script = ExtResource("13_08j5l")
+Dialogues = ["Hi, welcome to Square Connect.", "In this game your goal is to connect squares together.", "Rainbow squares connect with every color.", "And two same colours also connect.", "But two different colours do not.", "You lose a life point for each destroyed square.", "You get 100 score for each connected square.", "Squares will spawn randomly.", "Good luck!"]
+
+[connection signal="pressed" from="CanvasLayer/ui/EndScreen/VBoxContainer/main menu" to="CanvasLayer/ui" method="MainMenu"]
+[connection signal="pressed" from="CanvasLayer/ui/text/Button" to="TutorialHandler" method="NextDialogue"]
